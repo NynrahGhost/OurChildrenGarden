@@ -1,0 +1,32 @@
+.kids {
+	margin-top: 5%;
+	background-color: #004477;
+    border-radius: 25px;
+    padding: 10px;
+}
+
+.kidField {
+	margin-top: 1%;
+	margin-bottom: 1%;
+	background-color: #003388;
+    border-radius: 25px;
+    padding: 10px;
+}
+
+.kid {
+	margin-top: 1%;
+	margin-bottom: 1%;
+	background-color: #0050bb;
+    border-radius: 25px;
+    padding: 5px;
+}
+
+.kidTable {
+	height: 20%;
+	overflow: auto;
+}
+
+td a {
+    display:block;
+    width:100%;
+}
