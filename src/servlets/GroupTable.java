@@ -93,6 +93,10 @@ public class GroupTable extends HttpServlet {
 		
 		out.append("<button type=\"button\" onclick=\"document.getElementById('" + request.getParameter("GroupID") + "').click()\">Відкрити</button>");
 		
+		if(Integer.parseInt((String)session.getAttribute("UserType")) == 3) {
+			out.append("<input type='text' id='type' placeholder=\"Нова назва/тип\"></input>");
+		}
+		
 		out.append("<button type=\"button\" onclick=\"document.getElementById('" + request.getParameter("GroupID") + "').click()\" style='float: right;'>Зберегти</button>");
 		
 		out.append("<div style='overflow: auto;'><table class='table table-sm table-primary' style='margin-bottom: 0;'>");

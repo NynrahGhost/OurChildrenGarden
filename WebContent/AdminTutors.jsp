@@ -36,7 +36,7 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/js/mdb.min.js"></script>
 
 	<meta charset="UTF-8">
-	<title>Батьки • Адміністрація</title>
+	<title>Вихователі • Адміністрація</title>
 </head>
 <body>
 	
@@ -51,14 +51,14 @@
       <li class="nav-item">
         <a class="nav-link" href="../../ChildrenGarden/AdminGroups.jsp">Групи</a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Батьки<span class="sr-only">(current)</span></a>
+      <li class="nav-item">
+        <a class="nav-link" href="../../ChildrenGarden/AdminParents.jsp">Батьки</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="../../ChildrenGarden/AdminKids.jsp">Діти</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../../ChildrenGarden/AdminTutors.jsp">Викладачі</a>
+      <li class="nav-item active">
+        <a class="nav-link" href="../../ChildrenGarden/AdminTutors.jsp">Викладачі<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="../../ChildrenGarden/AdminFinance.jsp">Фінанси</a>
@@ -107,7 +107,7 @@
 	            }
 	        }
 	    };
-	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/ParentList"); 
+	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/TutorList"); 
 	    xmlHttp.send(null); 
 	}
 	
@@ -134,7 +134,7 @@
 	            kidsAssigned = $('#kidsList').val();
 	        }
 	    };
-	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/ParentTable"); 
+	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/TutorTable"); 
 	    xmlHttp.send(formData); 
 	}
 	
@@ -160,11 +160,9 @@
 		formData.append("Name", document.getElementById("name").value);
 		formData.append("Patr", document.getElementById("patr").value);
 		
-		formData.append("Work", document.getElementById("work").value);
-		formData.append("Position", document.getElementById("pos").value);
+		formData.append("BirthDate", document.getElementById("birthDate").value);
 		
 		formData.append("Tel", document.getElementById("tel").value);
-		formData.append("TelWork", document.getElementById("telWork").value);
 		formData.append("Tel1", document.getElementById("tel1").value);
 		formData.append("Tel2", document.getElementById("tel2").value);
 		
@@ -175,7 +173,7 @@
 				formData.get("Surname") + " " + formData.get("Name") + " " + formData.get("Patr");
 	    	kidsAssigned = kids;
 	    }
-		xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/UpdateParent"); 
+		xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/UpdateTutor"); 
 	    xmlHttp.send(formData); 
 	}
 	
@@ -199,7 +197,7 @@
 			}
 		}
 		
-		formData.append("Entity", "Parent");
+		formData.append("Entity", "Tutor");
 		
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.onreadystatechange = function()
@@ -215,7 +213,7 @@
 		if (confirm("Ви збираєтесь видалити опікуна, дану дію скасувати буде неможливо! Ви впевнені у своєму виборі?")) {
 			var formData = new FormData();
 			formData.append("ID", e.target.previousSibling.id);
-			formData.append("Entity", "Parent");
+			formData.append("Entity", "Tutor");
 			
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = function()

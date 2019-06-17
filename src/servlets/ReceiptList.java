@@ -9,7 +9,6 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +18,8 @@ import javax.servlet.http.HttpSession;
 import managing.DataBase;
 
 
-@WebServlet("/KidsTable")
-@MultipartConfig
-public class KidsTable extends HttpServlet {
+@WebServlet("/ReceiptList")
+public class ReceiptList extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
 	public static Connection conn;
@@ -39,12 +37,11 @@ public class KidsTable extends HttpServlet {
 		} catch (SQLException e) {e.printStackTrace();}
     }
 	
-    public KidsTable() {
+    public ReceiptList() {
         super();
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
 		doPost(request, response);
 	}
 	
@@ -58,30 +55,22 @@ public class KidsTable extends HttpServlet {
             //response.sendRedirect("index.jsp");
             return;
         }
-		//System.out.println(request.getParameter("KidID"));
-		ResultSet rs = DataBase.getKidAttendance(Integer.parseInt(request.getParameter("KidID")), conn);
 		
 		PrintWriter out = response.getWriter();
 		
-		out.append("<table class='table table-sm table-dark'>");
 		
-		try {
-			if(rs != null) {
-				out.append(	"<input type=\"text\" class=\"form-control\" id='date-begin'>"
-						+ 	"<input type=\"text\" class=\"form-control\" id='date-end'>");
-				while(rs.next()) {
-					if(rs.getBoolean(1)) {
-						out.append("<tr class='bg-primary'><td>" + rs.getDate(2).toString() + "</td><td>" + rs.getString(3) + "</td></tr>");
-					} else {
-						out.append("<tr class='bg-danger'><td>" + rs.getDate(2).toString() + "</td><td>" + rs.getString(4) + "</td></tr>");
-					}
-				}
-			} else {
-				out.append("Жодного заняття в вашої дитини ще не відбулося!");
-			}
-		} catch (SQLException e) {e.printStackTrace();}
+		if(Integer.parseInt((String)session.getAttribute("UserType")) == 3) {
+			out.append(	"<div class='kidField' style='text-align:center;'>"
+					+ 		"<a>"
+					+ 			"<div class='kid' style='text-align: center; background-color: #7734ff;'>Додати групу</div>"
+					+ 			"<input id='fee' placeholder='Благодійний внесок'><input id='month' placeholder='Плата за місяць'><input id='day' placeholder='Плата за день'><input id='part' placeholder='Частина оплати державою'><button onclick='createTariff()'>Новий тариф</button><br/>"
+					+		"</a>"
+					+ 	"</div>");
+		}
 		
-		out.append("</table>");
+		//try {
+			
+		//} catch (SQLException e) {e.printStackTrace();}
 		
 		out.flush();
 	}

@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -57,21 +58,55 @@ public class KidsList extends HttpServlet {
             return;
         }
 		
-		ResultSet rs = DataBase.getKidsOfParents(Integer.parseInt(userID), conn);
-		
+		int userType = Integer.parseInt((String) session.getAttribute("UserType"));
 		PrintWriter out = response.getWriter();
 		
-		try {
-			if(rs != null) {
-				while(rs.next()) {
-					out.append("<div class='kidField'><a><div onclick='openTable(event)' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2) + " " + rs.getString(3) + " " + rs.getString(4) + "</div></a><div class='kidTable' id='t" + rs.getInt(1) + "'></div></div>");
+		if(userType == 1) {
+			
+			ResultSet rs = DataBase.getKidsOfParents(Integer.parseInt(userID), conn);
+			
+			try {
+				if(rs != null) {
+					while(rs.next()) {
+						out.append("<div class='kidField'><a><div onclick='openTable(event)' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2) + " " + rs.getString(3) + " " + rs.getString(4) + "</div></a><div class='kidTable' id='t" + rs.getInt(1) + "'></div></div>");
+					}
+					
+				} else {
+					out.append("До вас не прив'язано жодної дитини");
 				}
-			} else {
-				out.append("До вас на прив'язано жодної дитини");
-			}
-		} catch (SQLException e) {e.printStackTrace();}
+			} catch (SQLException e) {e.printStackTrace();}
+			
+		} else if(userType == 3) {
+			
+			try {
+				Statement st = conn.createStatement();
+				
+				ResultSet rs = st.executeQuery("SELECT Kid_ID, FN_Surname, FN_Name, FN_Patr FROM Діти;");
+				
+				out.append("<div class='kidField'><a><div class='kid' onclick='createKid()' style='text-align: center; background-color: #7734ff;'>Додати дитину</div></a></div>");
+				
+				if(rs != null) {
+					while(rs.next()) {
+						out.append(	"<div class='kidField'>"
+								+ 		"<a style='display:flex;'>"
+								+ 			"<div style='flex-grow: 3;' onclick='openTable(event)' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2) + " " + rs.getString(3) + " " + isNull(rs.getString(4)) + "</div>"
+								+ 			"<button onclick='deleteKid(event)' style='background-color:red; border-radius:25px; margin:auto; height:34px; border: none;'>Видалити</button>"
+								+ 		"</a>"
+								+ 		"<div class='kidTable' style='text-align: center;' id='t" + rs.getInt(1) + "'></div>"
+								+ 	"</div>");
+					}
+				} else {
+					out.append("Жодної дитини не знайдено");
+				}
+			} catch (SQLException e) {e.printStackTrace();}
+			
+		}
 		
 		out.flush();
+	}
+	
+	private static String isNull(String str) {
+		return str == null ? "" : str;
 	}
 
 }

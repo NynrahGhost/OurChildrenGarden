@@ -30,7 +30,7 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/js/mdb.min.js"></script>
 
 	<meta charset="UTF-8">
-	<title>Our children garden</title>
+	<title>Групи • Адміністрація</title>
 </head>
 <body>
 	
@@ -51,13 +51,13 @@
         <a class="nav-link" href="../../ChildrenGarden/AdminParents.jsp">Батьки</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Діти</a>
+        <a class="nav-link" href="../../ChildrenGarden/AdminKids.jsp">Діти</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Викладачі</a>
+        <a class="nav-link" href="../../ChildrenGarden/AdminTutors.jsp">Викладачі</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Фінанси</a>
+        <a class="nav-link" href="../../ChildrenGarden/AdminFinance.jsp">Фінанси</a>
       </li>
     </ul>
     <span class="navbar-text white-text">
@@ -75,6 +75,9 @@
 	</div>
 	
 	<script>
+	
+	var groupsList = [];
+	
 	(function ()
 	{
 		if('<%= session.getAttribute("UserID") %>' === null || '<%= session.getAttribute("UserType") %>' !== "3")
@@ -82,19 +85,26 @@
 			window.location.replace("http://localhost:8080/ChildrenGarden/index.jsp");
 		}
 		
+		updateList();
+	    
+	} () );
+	
+	function updateList() {
 		var xmlHttp = new XMLHttpRequest();
 	   	xmlHttp.onreadystatechange = function()
 	    {
 	        if(xmlHttp.readyState == 4 && xmlHttp.status == 200)
 	        {
-	            //alert(xmlHttp.responseText);
 	            document.getElementById("KidsList").innerHTML = xmlHttp.responseText;
+	            var children = document.getElementById("KidsList").children;
+	            for (var i = 1; i < children.length; i++) {
+	            	groupsList.push(children[i].firstChild.firstChild.id);
+	            }
 	        }
 	    };
 	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/GroupList"); 
 	    xmlHttp.send(null); 
-	    
-	} () );
+	}
 	
 	function openTable(e)
 	{
@@ -130,6 +140,62 @@
 	    };
 	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/GroupTable"); 
 	    xmlHttp.send(formData); 
+	}
+	
+	function send(e)
+	{
+		var formData = new FormData();
+		formData.append("GroupID", e.target.parentElement.id.substring(1));
+		var type = document.getElementById("type").value;
+		if(type != null && type != "") {
+			formData.append("Type", type);
+		} else {
+			formData.append("Type", "");
+		}
+	}
+	
+	function createGroup()
+	{
+		var formData = new FormData();
+		
+		function sortNumber(a, b) {
+			  return a - b;
+		}
+		groupsList.sort(sortNumber);
+		
+		for(var i = 1000001; i < 2147483648; i++) {
+			if(groupsList[i - 1000001] != i) {
+				formData.append("ID", i);
+				break;
+			}
+		}
+		
+		formData.append("Entity", "Group");
+		
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.onreadystatechange = function()
+    	{
+			updateList();
+    	}
+		xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/Create"); 
+    	xmlHttp.send(formData); 
+	}
+	
+	function deleteGroup(e)
+	{
+		if (confirm("Ви збираєтесь видалити групу, дану дію скасувати буде неможливо! Ви впевнені у своєму виборі?")) {
+			var formData = new FormData();
+			formData.append("ID", e.target.previousSibling.id);
+			formData.append("Entity", "Group");
+			
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.onreadystatechange = function()
+	    	{
+				document.getElementById(e.target.parentNode.parentNode.parentNode.removeChild(e.target.parentNode.parentNode));
+	    	}
+			xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/Delete"); 
+	    	xmlHttp.send(formData); 
+		}
 	}
 	</script>
 	

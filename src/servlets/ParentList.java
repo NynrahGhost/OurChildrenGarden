@@ -68,8 +68,18 @@ public class ParentList extends HttpServlet {
 		
 		try {
 			if(rs != null) {
+				
+				out.append("<div class='kidField'><a><div class='kid' onclick='createParent()' style='text-align: center; background-color: #7734ff;'>Додати опікуна</div></a></div>");
+				
 				while(rs.next()) {
-					out.append("<div class='kidField'><a><div onclick='openTable(event)' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2)+" "+ rs.getString(3)+" "+ rs.getString(4) + "</div></a><div class='kidTable' id='t" + rs.getInt(1) + "'></div></div>");
+					out.append(		"<div class='kidField'>"
+							+ 			"<a style='display:flex;'>"
+							+ 				"<div onclick='openTable(event)' style='flex-grow: 3;' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2)+" "+ rs.getString(3)+" "+ isNull(rs.getString(4)) + "</div>"
+							+ 				"<button onclick='deleteParent(event)' style='background-color:red; border-radius:25px; margin:auto; height:34px; border: none;'>Видалити</button>"
+							+ 			"</a>"
+							+ 			"<div style='text-align: center;' class='kidTable' id='t" + rs.getInt(1) + "'>"
+							+ 			"</div>"
+							+ 		"</div>");
 				}
 			} else {
 				out.append("До вас на прив'язано жодної групи");
@@ -79,4 +89,7 @@ public class ParentList extends HttpServlet {
 		out.flush();
 	}
 
+	private static String isNull(String str) {
+		return str == null ? "" : str;
+	}
 }

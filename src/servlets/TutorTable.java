@@ -25,9 +25,9 @@ import javax.servlet.http.HttpSession;
 import managing.DataBase;
 
 
-@WebServlet("/ParentTable")
+@WebServlet("/TutorTable")
 @MultipartConfig
-public class ParentTable extends HttpServlet {
+public class TutorTable extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
 	public static Connection conn;
@@ -45,7 +45,7 @@ public class ParentTable extends HttpServlet {
 		} catch (SQLException e) {e.printStackTrace();}
     }
 	
-    public ParentTable() {
+    public TutorTable() {
         super();
     }
 
@@ -64,7 +64,7 @@ public class ParentTable extends HttpServlet {
             return;
         }
 		
-		ResultSet rs = DataBase.getParentInfo(Integer.parseInt(request.getParameter("ParentID")), conn);
+		ResultSet rs = DataBase.getTutorInfo(Integer.parseInt(request.getParameter("ParentID")), conn);
 		
 		PrintWriter out = response.getWriter();
 		
@@ -77,17 +77,15 @@ public class ParentTable extends HttpServlet {
 				out.append("<input value=\"Ім'я:\" readonly><input type='text' id='name' value='" + isNull(rs.getString(2)) + "'></input><br/>");
 				out.append("<input value='По-батькові:' readonly><input type='text' id='patr' value='" + isNull(rs.getString(3)) + "'></input><hr/>");
 				
-				out.append("<input value='Місце роботи:' readonly><input type='text' id='work' value='" + isNull(rs.getString(4)) + "'></input><br/>");
-				out.append("<input value='Посада:' readonly><input type='text' id='pos' value='" + isNull(rs.getString(5)) + "'></input><hr/>");
+				out.append("<input value='Мобільний телефон:' readonly><input type='text' id='tel' value='" + isNull(rs.getString(4)) + "'></input><br/>");
+				out.append("<input value='Додатковий телефон:' readonly><input type='text' id='tel1' value='" + isNull(rs.getString(5)) + "'></input><br/>");
+				out.append("<input value='Додатковий телефон:' readonly><input type='text' id='tel2' value='" + isNull(rs.getString(6)) + "'></input><hr/>");
 				
-				out.append("<input value='Мобільний телефон:' readonly><input type='text' id='tel' value='" + isNull(rs.getString(6)) + "'></input><br/>");
-				out.append("<input value='Робочий телефон:' readonly><input type='text' id='telWork' value='" + isNull(rs.getString(7)) + "'></input><br/>");
-				out.append("<input value='Додатковий телефон:' readonly><input type='text' id='tel1' value='" + isNull(rs.getString(8)) + "'></input><br/>");
-				out.append("<input value='Додатковий телефон:' readonly><input type='text' id='tel2' value='" + isNull(rs.getString(9)) + "'></input><hr/>");
+				out.append("<input value='Дата народження:' readonly><input type='text' id='birthDate' value='" + rs.getDate(7) + "'></input><hr/>");
 				
 				out.append("<input value='Новий пароль:' readonly><input type='text' id='password'></input><hr/>");
 				
-				out.append("<input value='Належні діти:' readonly style='width: 370px;'><br/>");
+				out.append("<input value='Групи:' readonly style='width: 370px;'><br/>");
 				
 				out.append("<select id='kidsList' style='width: 370px;' title=\"Список дітей\" multiple>"); //onload='event.target.selectpicker()' class=\"selectpicker\" data-live-search=\"true\" 
 				

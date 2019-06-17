@@ -56,19 +56,32 @@ public class GroupList extends HttpServlet {
             return;
         }
 		
+		PrintWriter out = response.getWriter();
+		
 		ResultSet rs = null;
 		if(Integer.parseInt((String)session.getAttribute("UserType")) == 3) {
 			rs = DataBase.getGroupsOfAdmin(conn);
+			
+			out.append("<div class='kidField'><a><div class='kid' onclick='createGroup()' style='text-align: center; background-color: #7734ff;'>Додати групу</div></a></div>");
 		} else {
 			rs = DataBase.getGroupsOfTutor(Integer.parseInt(userID), conn);
 		}
 		
-		PrintWriter out = response.getWriter();
-		
 		try {
 			if(rs != null) {
-				while(rs.next()) {
-					out.append("<div class='kidField'><a><div onclick='openTable(event)' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2) + "</div></a><div class='kidTable' id='t" + rs.getInt(1) + "'></div></div>");
+				if(Integer.parseInt((String)session.getAttribute("UserType")) == 3) {
+					while(rs.next()) {
+						out.append(	"<div class='kidField'>"
+								+ 		"<a style='display:flex;'>"
+								+ 			"<div style='flex-grow: 3;' onclick='openTable(event)' class='kid' id='" + rs.getInt(1) + "'>(" + rs.getInt(1) + ") " + rs.getString(2) + "</div>"
+								+ 			"<button onclick='deleteGroup(event)' style='background-color:red; border-radius:25px; margin:auto; height:34px; border: none;'>Видалити</button>"
+								+		"</a>"
+								+ 	"<div class='kidTable' id='t" + rs.getInt(1) + "'></div></div>");
+					}
+				} else {
+					while(rs.next()) {
+						out.append("<div class='kidField'><a><div onclick='openTable(event)' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2) + "</div></a><div class='kidTable' id='t" + rs.getInt(1) + "'></div></div>");
+					}
 				}
 			} else {
 				out.append("До вас на прив'язано жодної групи");

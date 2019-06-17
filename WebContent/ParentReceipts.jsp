@@ -30,7 +30,7 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/js/mdb.min.js"></script>
 
 	<meta charset="UTF-8">
-	<title>Our children garden</title>
+	<title>Платіжі • Батьки</title>
 </head>
 <body>
 	

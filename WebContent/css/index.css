@@ -30,3 +30,8 @@ td a {
     display:block;
     width:100%;
 }
+
+.sel {
+	width: 185px;
+    height: 30px;
+}

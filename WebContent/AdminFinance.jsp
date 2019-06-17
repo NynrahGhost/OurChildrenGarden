@@ -3,7 +3,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-	
 	<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -20,6 +19,12 @@
 	<!-- Material Design Bootstrap -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/css/mdb.min.css" rel="stylesheet">
 
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+
 	<!-- JQuery -->
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<!-- Bootstrap tooltips -->
@@ -30,10 +35,10 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/js/mdb.min.js"></script>
 
 	<meta charset="UTF-8">
-	<title>Групи • Вихователі</title>
+	
+	<title>Фінанаси • Адміністрація</title>
 </head>
 <body>
-	
 	<nav class="navbar navbar-expand-lg navbar-dark indigo">
   <a class="navbar-brand" href="#">Наш дитячий садок</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
@@ -42,17 +47,24 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarText">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Мої групи
-          <span class="sr-only">(current)</span>
-        </a>
+      <li class="nav-item">
+        <a class="nav-link" href="../../ChildrenGarden/AdminGroups.jsp">Групи</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Викладачі</a>
+        <a class="nav-link" href="../../ChildrenGarden/AdminParents.jsp">Батьки</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../../ChildrenGarden/AdminKids.jsp">Діти</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../../ChildrenGarden/AdminTutors.jsp">Викладачі</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="../../ChildrenGarden/AdminFinance.jsp">Фінанси<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <span class="navbar-text white-text">
-      Navbar text with an inline element
+      Ви зайшли як Адміністратор
     </span>
   </div>
 </nav>
@@ -66,9 +78,13 @@
 	</div>
 	
 	<script>
+
+	var kidsList = [];
+	var groupsAssigned = [];
+	
 	(function ()
 	{
-		if('<%= session.getAttribute("UserID") %>' === null || '<%= session.getAttribute("UserType") %>' !== "2")
+		if('<%= session.getAttribute("UserID") %>' === null || '<%= session.getAttribute("UserType") %>' !== "3")
 		{
 			window.location.replace("http://localhost:8080/ChildrenGarden/index.jsp");
 		}
@@ -78,51 +94,18 @@
 	    {
 	        if(xmlHttp.readyState == 4 && xmlHttp.status == 200)
 	        {
-	            //alert(xmlHttp.responseText);
 	            document.getElementById("KidsList").innerHTML = xmlHttp.responseText;
+	            var children = document.getElementById("KidsList").children;
+	            for (var i = 1; i < children.length; i++) {
+	            	kidsList.push(children[i].firstChild.firstChild.id);
+	            }
 	        }
 	    };
-	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/GroupList"); 
+	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/ReceiptList"); 
 	    xmlHttp.send(null); 
 	    
 	} () );
 	
-	function openTable(e)
-	{
-		var formData = new FormData();
-		
-		var d = new Date();
-		
-		formData.append("GroupID", e.target.id);
-		if(typeof document.getElementsByName("Month") !== 'undefined' && document.getElementsByName("Month").length > 0) {
-			formData.append("Month", parseInt(document.getElementsByName("Month")[0].value));
-		} else {
-			formData.append("Month", d.getMonth()+1);
-		}
-		
-		if(typeof document.getElementsByName("Year") !== 'undefined' && document.getElementsByName("Year").length > 0) {
-			formData.append("Year", parseInt(document.getElementsByName("Year")[0].value));
-		} else {
-			formData.append("Year", d.getYear()+1900);
-		}
-
-		var xmlHttp = new XMLHttpRequest();
-	   	xmlHttp.onreadystatechange = function()
-	    {
-	        if(xmlHttp.readyState == 4 && xmlHttp.status == 200)
-	        {
-	        	var tables = document.getElementsByClassName('kidTable');
-	        	for(var i = 0; i < tables.length; i++)
-	        	{
-	        		tables[i].innerHTML = null;
-	        	}
-	            document.getElementById('t' + e.target.id).innerHTML = xmlHttp.responseText;
-	        }
-	    };
-	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/GroupTable"); 
-	    xmlHttp.send(formData); 
-	}
 	</script>
-	
 </body>
 </html>

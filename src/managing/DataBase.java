@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import servlets.Authentication;
  
@@ -36,7 +37,6 @@ public class DataBase {
 		
 		try {
 			conn = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Ghost/Client-Server/ChildrenGarden/src/managing/AIS.accdb");
-			System.out.println(conn == null);
 		} catch (SQLException e) {e.printStackTrace();}
 	}
 	
@@ -53,6 +53,18 @@ public class DataBase {
 		} catch (Exception e) {e.printStackTrace();}
 	}
 	
+	public static ResultSet doQuery(String query) {
+		try {
+			if(conn == null) { init(); }
+			
+			Statement s = conn.createStatement();
+			//s.executeUpdate(query);
+			ResultSet rs = s.executeQuery(query);
+			return rs;
+		} catch (Exception e) {e.printStackTrace();}
+		return null;
+	}
+	
 	
 	
 	private static PreparedStatement attendance;
@@ -60,19 +72,27 @@ public class DataBase {
 	private static PreparedStatement protectorID;
 	private static PreparedStatement getKidsOfParent;
 	
-	public static String getPassword(String phoneNumber, Connection conn) {
+	public static String getPassword(int type, String phoneNumber, Connection conn) {
 		try {
-			if(conn == null) {init();}
+			//if(conn == null) {init();}
 			
-			if(password == null) {
+			/*if(password == null) {
 				password = conn.prepareStatement(	"SELECT Password\r\n" + 
 													"FROM Опікуни\r\n" + 
 													"WHERE Phone_mob =?;");
 			}
 		
-			password.setString(1, phoneNumber);
+			password.setString(1, phoneNumber);*/
 			
-			ResultSet rs = password.executeQuery();
+			String q = "SELECT Password FROM ";
+			switch(type) {
+			case 1: q += "Parent"; break;
+			case 2: q += "Tutor"; break;
+			case 3: q += "Administrator"; break;
+			}
+			q += " WHERE Phone = '" + phoneNumber + "'";
+			
+			ResultSet rs = conn.createStatement().executeQuery(q);
 			rs.next();
 			//System.out.println(rs.getString(1) + "YES HERE!");
 			
@@ -211,13 +231,75 @@ public class DataBase {
 		return null;
 	}
 	
+	public static ResultSet getTutors(Connection conn) {
+		ResultSet rs = null;
+		try {
+			Statement st = conn.createStatement();
+			rs = st.executeQuery(	
+						"SELECT Tutor_ID, FN_surname, FN_name, FN_patr\r\n" + 
+						"FROM Вихователі;");
+			
+			return rs;
+		} catch (SQLException e) {e.printStackTrace();}
+		
+		return null;
+	}
+	
+	public static ResultSet getKids(Connection conn) {
+		ResultSet rs = null;
+		try {
+			Statement st = conn.createStatement();
+			rs = st.executeQuery(	
+						"SELECT Kid_ID, FN_surname, FN_name, FN_patr\r\n" + 
+						"FROM Діти;");
+			
+			return rs;
+		} catch (SQLException e) {e.printStackTrace();}
+		
+		return null;
+	}
+	
+	public static ResultSet getKidsOfParent(int id,Connection conn) {
+		ResultSet rs = null;
+		try {
+			Statement st = conn.createStatement();
+			rs = st.executeQuery(	
+						"SELECT Kid_ID\r\n" + 
+						"FROM Діти\r\n" + 
+						"WHERE Kid_ID in \r\n" + 
+						"(\r\n" + 
+						"SELECT PK_Kid_ID\r\n" + 
+						"FROM [Опікує-Опікується]\r\n" + 
+						"WHERE PK_Prot_ID = "+id+"\r\n" + 
+						");");
+			
+			return rs;
+		} catch (SQLException e) {e.printStackTrace();}
+		
+		return null;
+	}
+	
 	public static ResultSet getParentInfo(int id, Connection conn) {
 		ResultSet rs = null;
 		try {
 			Statement st = conn.createStatement();
 			rs = st.executeQuery(	
-						"SELECT Work_comp, Work_pos, Phone_mob, Phone_add1, Phone_add2, Phone_work\r\n" + 
+						"SELECT FN_surname, FN_name, FN_patr, Work_comp, Work_pos, Phone_mob, Phone_work, Phone_add1, Phone_add2\r\n" + 
 						"FROM Опікуни WHERE Protector_ID = " + id);
+			
+			return rs;
+		} catch (SQLException e) {e.printStackTrace();}
+		
+		return null;
+	}
+	
+	public static ResultSet getTutorInfo(int id, Connection conn) {
+		ResultSet rs = null;
+		try {
+			Statement st = conn.createStatement();
+			rs = st.executeQuery(	
+						"SELECT FN_surname, FN_name, FN_patr, Phone_mob, Phone_add1, Phone_add2, Birth_date\r\n" + 
+						"FROM Вихователі WHERE Tutor_ID = " + id);
 			
 			return rs;
 		} catch (SQLException e) {e.printStackTrace();}
@@ -252,5 +334,44 @@ public class DataBase {
 		} catch (SQLException e) {e.printStackTrace();}
 		
 		return null;
+	}
+	
+	public static void updateParent(int id, List<String> params, List<Integer> kidsAdd,  List<Integer> kidsDelete, Connection conn) {
+		try {
+			Statement s = conn.createStatement();
+				//System.out.println(params);
+			s.executeUpdate("UPDATE Опікуни "
+					+ 		"SET FN_Surname=\""+params.get(0)+"\", FN_Name=\""+params.get(1)+"\", FN_Patr=\""+params.get(2)
+					+		"\", Work_comp=\""+params.get(3)+"\", Work_pos=\""+params.get(4)+"\", Phone_mob=\""+params.get(5)
+					+ 		"\", Phone_work=\""+params.get(6)+"\", Phone_add1=\""+params.get(7)+"\", Phone_add2=\""+params.get(8)
+					+ 		"\" WHERE Protector_ID = " + id + ";");
+			
+			for(int kid : kidsAdd) {
+				s.executeUpdate("	INSERT INTO [Опікує-опікується] (PK_Kid_ID, PK_Prot_ID)\r\n" + 
+								"	VALUES ("+kid+", "+id+");");
+			}
+			for(int kid : kidsDelete) {
+				s.executeUpdate("	DELETE FROM [Опікує-опікується] WHERE PK_Kid_ID = "+kid+" AND PK_Prot_ID = "+id+";");
+			}
+		} catch (SQLException e) {e.printStackTrace();}
+	}
+	
+	public static void updateTutor(int id, List<String> params, List<Integer> kidsAdd,  List<Integer> kidsDelete, Connection conn) {
+		try {
+			Statement s = conn.createStatement();
+				//System.out.println(params);
+			s.executeUpdate("UPDATE Вихователі "
+					+ 		"SET FN_Surname=\""+params.get(0)+"\", FN_Name=\""+params.get(1)+"\", FN_Patr=\""+params.get(2)
+					+		"Phone_mob=\""+params.get(3)+"\", Phone_add1=\""+params.get(4)+"\", Phone_add2=\""+params.get(5)
+					+ 		"\" Birth_date = #"+params.get(6)+"# WHERE Tutor_ID = " + id + ";");
+			
+			for(int kid : kidsAdd) {
+				s.executeUpdate("	INSERT INTO [Опікує-опікується] (PK_Kid_ID, PK_Prot_ID)\r\n" + 
+								"	VALUES ("+kid+", "+id+");");
+			}
+			for(int kid : kidsDelete) {
+				s.executeUpdate("	DELETE FROM [Опікує-опікується] WHERE PK_Kid_ID = "+kid+" AND PK_Prot_ID = "+id+";");
+			}
+		} catch (SQLException e) {e.printStackTrace();}
 	}
 }

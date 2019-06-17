@@ -28,6 +28,7 @@ public class Authentication extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	public static Connection conn;
+	public static Connection conn2;
 	
     public Authentication() {
         super();
@@ -45,6 +46,7 @@ public class Authentication extends HttpServlet {
     	
     	
     	try {
+			conn2 = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Ghost/Client-Server/ChildrenGarden/src/managing/Passwords.accdb");
 			conn = DriverManager.getConnection("jdbc:ucanaccess://C:/Users/Ghost/Client-Server/ChildrenGarden/src/managing/AIS.accdb");
 		} catch (SQLException e) {e.printStackTrace();}
     }
@@ -59,7 +61,7 @@ public class Authentication extends HttpServlet {
 		
 		String password = request.getParameter("Password");
 
-		if(DataBase.getPassword(request.getParameter("PhoneNumber"),conn).equals(password)) {
+		if(DataBase.getPassword(Integer.parseInt(request.getParameter("UserType")), request.getParameter("PhoneNumber"),conn2).equals(password)) {
 	    	response.getWriter().append("Successfull login");
 	    	
 	    	HttpSession session = request.getSession();

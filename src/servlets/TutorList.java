@@ -9,7 +9,6 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +18,8 @@ import javax.servlet.http.HttpSession;
 import managing.DataBase;
 
 
-@WebServlet("/KidsTable")
-@MultipartConfig
-public class KidsTable extends HttpServlet {
+@WebServlet("/TutorList")
+public class TutorList extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
 	public static Connection conn;
@@ -39,12 +37,11 @@ public class KidsTable extends HttpServlet {
 		} catch (SQLException e) {e.printStackTrace();}
     }
 	
-    public KidsTable() {
+    public TutorList() {
         super();
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
 		doPost(request, response);
 	}
 	
@@ -58,32 +55,41 @@ public class KidsTable extends HttpServlet {
             //response.sendRedirect("index.jsp");
             return;
         }
-		//System.out.println(request.getParameter("KidID"));
-		ResultSet rs = DataBase.getKidAttendance(Integer.parseInt(request.getParameter("KidID")), conn);
+		
+		ResultSet rs = DataBase.getTutors(conn);
+		/*if(Integer.parseInt((String)session.getAttribute("UserType")) == 3) {
+			rs = DataBase.getGroupsOfAdmin(conn);
+		} else {
+			rs = DataBase.getGroupsOfTutor(Integer.parseInt(userID), conn);
+		}*/
+		
 		
 		PrintWriter out = response.getWriter();
 		
-		out.append("<table class='table table-sm table-dark'>");
-		
 		try {
 			if(rs != null) {
-				out.append(	"<input type=\"text\" class=\"form-control\" id='date-begin'>"
-						+ 	"<input type=\"text\" class=\"form-control\" id='date-end'>");
+				
+				out.append("<div class='kidField'><a><div class='kid' onclick='createParent()' style='text-align: center; background-color: #7734ff;'>Додати вихователя</div></a></div>");
+				
 				while(rs.next()) {
-					if(rs.getBoolean(1)) {
-						out.append("<tr class='bg-primary'><td>" + rs.getDate(2).toString() + "</td><td>" + rs.getString(3) + "</td></tr>");
-					} else {
-						out.append("<tr class='bg-danger'><td>" + rs.getDate(2).toString() + "</td><td>" + rs.getString(4) + "</td></tr>");
-					}
+					out.append(		"<div class='kidField'>"
+							+ 			"<a style='display:flex;'>"
+							+ 				"<div onclick='openTable(event)' style='flex-grow: 3;' class='kid' id='" + rs.getInt(1) + "'>" + rs.getString(2)+" "+ rs.getString(3)+" "+ isNull(rs.getString(4)) + "</div>"
+							+ 				"<button onclick='deleteParent(event)' style='background-color:red; border-radius:25px; margin:auto; height:34px; border: none;'>Видалити</button>"
+							+ 			"</a>"
+							+ 			"<div style='text-align: center;' class='kidTable' id='t" + rs.getInt(1) + "'>"
+							+ 			"</div>"
+							+ 		"</div>");
 				}
 			} else {
-				out.append("Жодного заняття в вашої дитини ще не відбулося!");
+				out.append("До вас на прив'язано жодної групи");
 			}
 		} catch (SQLException e) {e.printStackTrace();}
-		
-		out.append("</table>");
 		
 		out.flush();
 	}
 
+	private static String isNull(String str) {
+		return str == null ? "" : str;
+	}
 }

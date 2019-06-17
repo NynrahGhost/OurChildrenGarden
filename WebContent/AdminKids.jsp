@@ -36,7 +36,7 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.2/js/mdb.min.js"></script>
 
 	<meta charset="UTF-8">
-	<title>Батьки • Адміністрація</title>
+	<title>Діти • Адміністрація</title>
 </head>
 <body>
 	
@@ -51,11 +51,11 @@
       <li class="nav-item">
         <a class="nav-link" href="../../ChildrenGarden/AdminGroups.jsp">Групи</a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Батьки<span class="sr-only">(current)</span></a>
-      </li>
       <li class="nav-item">
-        <a class="nav-link" href="../../ChildrenGarden/AdminKids.jsp">Діти</a>
+        <a class="nav-link" href="../../ChildrenGarden/AdminParents.jsp">Батьки</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Діти<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="../../ChildrenGarden/AdminTutors.jsp">Викладачі</a>
@@ -80,8 +80,8 @@
 	
 	<script>
 
-	var parentsList = [];
-	var kidsAssigned = [];
+	var kidsList = [];
+	var groupsAssigned = [];
 	
 	(function ()
 	{
@@ -103,11 +103,11 @@
 	            document.getElementById("KidsList").innerHTML = xmlHttp.responseText;
 	            var children = document.getElementById("KidsList").children;
 	            for (var i = 1; i < children.length; i++) {
-	            	parentsList.push(children[i].firstChild.firstChild.id);
+	            	kidsList.push(children[i].firstChild.firstChild.id);
 	            }
 	        }
 	    };
-	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/ParentList"); 
+	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/KidsList"); 
 	    xmlHttp.send(null); 
 	}
 	
@@ -117,7 +117,7 @@
 		
 		var d = new Date();
 		
-		formData.append("ParentID", e.target.id);
+		formData.append("KidID", e.target.id);
 
 		var xmlHttp = new XMLHttpRequest();
 	   	xmlHttp.onreadystatechange = function()
@@ -131,51 +131,44 @@
 	        	}
 	            document.getElementById('t' + e.target.id).innerHTML = xmlHttp.responseText;
 	            
-	            kidsAssigned = $('#kidsList').val();
+	            groupsAssigned = $('#kidsList').val();
 	        }
 	    };
-	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/ParentTable"); 
+	    xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/KidsInfo"); 
 	    xmlHttp.send(formData); 
 	}
 	
 	function send(e)
 	{
-		var kids = $('#kidsList').val();//document.getElementById("kidsList").selectedOptions; 
-		
-		//var kidsToAssign = diff(kids, kidsAssigned);
-		
-		var kidsToAssign = kids.diff(kidsAssigned);
-		var kidsToDischarge = kidsAssigned.diff(kids);
-		
-		//alert(kidsToDischarge);
+		var groups = $('#kidsList').val();
+		var groupsToAssign = groups.diff(groupsAssigned);
+		var groupsToDischarge = groupsAssigned.diff(groups);
 		
 		var formData = new FormData();
-		formData.append("ParentID", e.target.parentElement.id.substring(1));
-		formData.append("KidsToAssign", kidsToAssign);
-		formData.append("KidsToDischarge", kidsToDischarge);
-		
-		formData.append("Password", sha256(document.getElementById("inputPassword").value));
+		formData.append("KidID", e.target.parentElement.id.substring(1));
+		formData.append("GroupsToAssign", groupsToAssign);
+		formData.append("GroupsToDischarge", groupsToDischarge);
 		
 		formData.append("Surname", document.getElementById("surname").value);
 		formData.append("Name", document.getElementById("name").value);
 		formData.append("Patr", document.getElementById("patr").value);
 		
-		formData.append("Work", document.getElementById("work").value);
-		formData.append("Position", document.getElementById("pos").value);
+		formData.append("BirthDate", document.getElementById("birthDate").value);
 		
-		formData.append("Tel", document.getElementById("tel").value);
-		formData.append("TelWork", document.getElementById("telWork").value);
-		formData.append("Tel1", document.getElementById("tel1").value);
-		formData.append("Tel2", document.getElementById("tel2").value);
+		formData.append("Postal", document.getElementById("postal").value);
+		formData.append("Region", document.getElementById("region").value);
+		formData.append("City", document.getElementById("city").value);
+		formData.append("District", document.getElementById("district").value);
+		formData.append("Street", document.getElementById("street").value);
 		
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.onreadystatechange = function()
 	    {
 			document.getElementById(e.target.parentElement.id.substring(1)).textContent = 
 				formData.get("Surname") + " " + formData.get("Name") + " " + formData.get("Patr");
-	    	kidsAssigned = kids;
+			groupsAssigned = groups;
 	    }
-		xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/UpdateParent"); 
+		xmlHttp.open("post", "http://localhost:8080/ChildrenGarden/UpdateKid"); 
 	    xmlHttp.send(formData); 
 	}
 	
@@ -183,23 +176,23 @@
 	    return this.filter(function(i) {return a.indexOf(i) < 0;});
 	};
 	
-	function createParent()
+	function createKid()
 	{
 		var formData = new FormData();
 		
 		function sortNumber(a, b) {
 			  return a - b;
 		}
-		parentsList.sort(sortNumber);
+		kidsList.sort(sortNumber);
 		
 		for(var i = 1000001; i < 2147483648; i++) {
-			if(parentsList[i - 1000001] != i) {
+			if(kidsList[i - 1000001] != i) {
 				formData.append("ID", i);
 				break;
 			}
 		}
 		
-		formData.append("Entity", "Parent");
+		formData.append("Entity", "Kid");
 		
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.onreadystatechange = function()
@@ -210,12 +203,12 @@
     	xmlHttp.send(formData); 
 	}
 	
-	function deleteParent(e)
+	function deleteKid(e)
 	{
-		if (confirm("Ви збираєтесь видалити опікуна, дану дію скасувати буде неможливо! Ви впевнені у своєму виборі?")) {
+		if (confirm("Ви збираєтесь видалити дитину, дану дію скасувати буде неможливо! Ви впевнені у своєму виборі?")) {
 			var formData = new FormData();
 			formData.append("ID", e.target.previousSibling.id);
-			formData.append("Entity", "Parent");
+			formData.append("Entity", "Kid");
 			
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = function()
